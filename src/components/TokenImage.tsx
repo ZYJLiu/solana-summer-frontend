@@ -1,7 +1,6 @@
 import { FC, useState, useEffect, useRef } from "react"
 import { Metaplex } from "@metaplex-foundation/js"
 import { useWorkspace } from "contexts/Workspace"
-import Modal from "./Modal"
 
 export interface Props {
     account: string

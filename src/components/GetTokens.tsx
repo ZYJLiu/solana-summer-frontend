@@ -58,12 +58,14 @@ export const GetTokens: FC<Props> = (props) => {
                     >
                         Request Payment
                     </button>
-                    <Modal
-                        amount={amount}
-                        data={modalData}
-                        open={isOpen}
-                        onClose={() => setIsOpen(false)}
-                    />
+                    {isOpen && (
+                        <Modal
+                            amount={amount}
+                            data={modalData}
+                            open={isOpen}
+                            onClose={() => setIsOpen(false)}
+                        />
+                    )}
                 </div>
             )}
         </div>
