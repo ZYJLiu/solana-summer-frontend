@@ -1,57 +1,17 @@
-export type TokenRewardsCoupons = {
+export type SolanaSummer = {
     version: "0.1.0"
-    name: "token_rewards_coupons"
+    name: "solana_summer"
     instructions: [
         {
-            name: "createMerchant"
+            name: "createRewardMint"
             accounts: [
                 {
-                    name: "merchant"
+                    name: "rewardData"
                     isMut: true
                     isSigner: false
                 },
                 {
-                    name: "user"
-                    isMut: true
-                    isSigner: true
-                },
-                {
-                    name: "systemProgram"
-                    isMut: false
-                    isSigner: false
-                },
-                {
-                    name: "rent"
-                    isMut: false
-                    isSigner: false
-                }
-            ]
-            args: [
-                {
-                    name: "name"
-                    type: "string"
-                },
-                {
-                    name: "image"
-                    type: "string"
-                }
-            ]
-        },
-        {
-            name: "createPromo"
-            accounts: [
-                {
-                    name: "merchant"
-                    isMut: true
-                    isSigner: false
-                },
-                {
-                    name: "promo"
-                    isMut: true
-                    isSigner: false
-                },
-                {
-                    name: "promoMint"
+                    name: "rewardMint"
                     isMut: true
                     isSigner: false
                 },
@@ -88,6 +48,14 @@ export type TokenRewardsCoupons = {
             ]
             args: [
                 {
+                    name: "rebateBasisPoints"
+                    type: "u64"
+                },
+                {
+                    name: "bonusBasisPoints"
+                    type: "u64"
+                },
+                {
                     name: "uri"
                     type: "string"
                 },
@@ -102,40 +70,69 @@ export type TokenRewardsCoupons = {
             ]
         },
         {
-            name: "mintNft"
+            name: "redeem"
             accounts: [
                 {
-                    name: "promo"
+                    name: "rewardData"
                     isMut: false
                     isSigner: false
                 },
                 {
-                    name: "promoMint"
+                    name: "rewardMint"
                     isMut: true
                     isSigner: false
                 },
                 {
-                    name: "tokenProgram"
+                    name: "usdcMint"
                     isMut: false
                     isSigner: false
                 },
                 {
-                    name: "customerNft"
+                    name: "customerRewardToken"
+                    isMut: true
+                    isSigner: false
+                },
+                {
+                    name: "customerUsdcToken"
+                    isMut: true
+                    isSigner: false
+                },
+                {
+                    name: "userUsdcToken"
                     isMut: true
                     isSigner: false
                 },
                 {
                     name: "user"
                     isMut: true
+                    isSigner: false
+                },
+                {
+                    name: "customer"
+                    isMut: true
                     isSigner: true
+                },
+                {
+                    name: "tokenProgram"
+                    isMut: false
+                    isSigner: false
                 }
             ]
-            args: []
+            args: [
+                {
+                    name: "usdcToken"
+                    type: "u64"
+                },
+                {
+                    name: "rewardToken"
+                    type: "u64"
+                }
+            ]
         }
     ]
     accounts: [
         {
-            name: "merchant"
+            name: "tokenData"
             type: {
                 kind: "struct"
                 fields: [
@@ -144,97 +141,53 @@ export type TokenRewardsCoupons = {
                         type: "publicKey"
                     },
                     {
-                        name: "promoCount"
+                        name: "rewardMint"
+                        type: "publicKey"
+                    },
+                    {
+                        name: "rewardBump"
+                        type: "u8"
+                    },
+                    {
+                        name: "rebateBasisPoints"
                         type: "u64"
                     },
                     {
-                        name: "image"
-                        type: "string"
-                    },
-                    {
-                        name: "name"
-                        type: "string"
-                    }
-                ]
-            }
-        },
-        {
-            name: "promo"
-            type: {
-                kind: "struct"
-                fields: [
-                    {
-                        name: "user"
-                        type: "publicKey"
-                    },
-                    {
-                        name: "mint"
-                        type: "publicKey"
-                    },
-                    {
-                        name: "bump"
-                        type: "u8"
+                        name: "bonusBasisPoints"
+                        type: "u64"
                     }
                 ]
             }
         }
     ]
-}
-
-export const IDL: TokenRewardsCoupons = {
-    version: "0.1.0",
-    name: "token_rewards_coupons",
-    instructions: [
+    errors: [
         {
-            name: "createMerchant",
-            accounts: [
-                {
-                    name: "merchant",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "user",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "rent",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "name",
-                    type: "string",
-                },
-                {
-                    name: "image",
-                    type: "string",
-                },
-            ],
+            code: 6000
+            name: "PDA"
+            msg: "PDA not match"
         },
         {
-            name: "createPromo",
+            code: 6001
+            name: "MATH"
+            msg: "Math Error"
+        }
+    ]
+}
+
+export const IDL: SolanaSummer = {
+    version: "0.1.0",
+    name: "solana_summer",
+    instructions: [
+        {
+            name: "createRewardMint",
             accounts: [
                 {
-                    name: "merchant",
+                    name: "rewardData",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "promo",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "promoMint",
+                    name: "rewardMint",
                     isMut: true,
                     isSigner: false,
                 },
@@ -271,6 +224,14 @@ export const IDL: TokenRewardsCoupons = {
             ],
             args: [
                 {
+                    name: "rebateBasisPoints",
+                    type: "u64",
+                },
+                {
+                    name: "bonusBasisPoints",
+                    type: "u64",
+                },
+                {
                     name: "uri",
                     type: "string",
                 },
@@ -285,40 +246,69 @@ export const IDL: TokenRewardsCoupons = {
             ],
         },
         {
-            name: "mintNft",
+            name: "redeem",
             accounts: [
                 {
-                    name: "promo",
+                    name: "rewardData",
                     isMut: false,
                     isSigner: false,
                 },
                 {
-                    name: "promoMint",
+                    name: "rewardMint",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "tokenProgram",
+                    name: "usdcMint",
                     isMut: false,
                     isSigner: false,
                 },
                 {
-                    name: "customerNft",
+                    name: "customerRewardToken",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "customerUsdcToken",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "userUsdcToken",
                     isMut: true,
                     isSigner: false,
                 },
                 {
                     name: "user",
                     isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "customer",
+                    isMut: true,
                     isSigner: true,
                 },
+                {
+                    name: "tokenProgram",
+                    isMut: false,
+                    isSigner: false,
+                },
             ],
-            args: [],
+            args: [
+                {
+                    name: "usdcToken",
+                    type: "u64",
+                },
+                {
+                    name: "rewardToken",
+                    type: "u64",
+                },
+            ],
         },
     ],
     accounts: [
         {
-            name: "merchant",
+            name: "tokenData",
             type: {
                 kind: "struct",
                 fields: [
@@ -327,39 +317,35 @@ export const IDL: TokenRewardsCoupons = {
                         type: "publicKey",
                     },
                     {
-                        name: "promoCount",
+                        name: "rewardMint",
+                        type: "publicKey",
+                    },
+                    {
+                        name: "rewardBump",
+                        type: "u8",
+                    },
+                    {
+                        name: "rebateBasisPoints",
                         type: "u64",
                     },
                     {
-                        name: "image",
-                        type: "string",
-                    },
-                    {
-                        name: "name",
-                        type: "string",
+                        name: "bonusBasisPoints",
+                        type: "u64",
                     },
                 ],
             },
         },
+    ],
+    errors: [
         {
-            name: "promo",
-            type: {
-                kind: "struct",
-                fields: [
-                    {
-                        name: "user",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "mint",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "bump",
-                        type: "u8",
-                    },
-                ],
-            },
+            code: 6000,
+            name: "PDA",
+            msg: "PDA not match",
+        },
+        {
+            code: 6001,
+            name: "MATH",
+            msg: "Math Error",
         },
     ],
 }

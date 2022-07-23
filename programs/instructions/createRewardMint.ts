@@ -11,49 +11,51 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category CreatePromo
+ * @category CreateRewardMint
  * @category generated
  */
-export type CreatePromoInstructionArgs = {
+export type CreateRewardMintInstructionArgs = {
+  rebateBasisPoints: beet.bignum
+  bonusBasisPoints: beet.bignum
   uri: string
   name: string
   symbol: string
 }
 /**
  * @category Instructions
- * @category CreatePromo
+ * @category CreateRewardMint
  * @category generated
  */
-export const createPromoStruct = new beet.FixableBeetArgsStruct<
-  CreatePromoInstructionArgs & {
+export const createRewardMintStruct = new beet.FixableBeetArgsStruct<
+  CreateRewardMintInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['rebateBasisPoints', beet.u64],
+    ['bonusBasisPoints', beet.u64],
     ['uri', beet.utf8String],
     ['name', beet.utf8String],
     ['symbol', beet.utf8String],
   ],
-  'CreatePromoInstructionArgs'
+  'CreateRewardMintInstructionArgs'
 )
 /**
- * Accounts required by the _createPromo_ instruction
+ * Accounts required by the _createRewardMint_ instruction
  *
- * @property [_writable_] merchant
- * @property [_writable_] promo
- * @property [_writable_] promoMint
+ * @property [_writable_] rewardData
+ * @property [_writable_] rewardMint
  * @property [_writable_, **signer**] user
  * @property [_writable_] metadata
  * @property [] tokenMetadataProgram
  * @category Instructions
- * @category CreatePromo
+ * @category CreateRewardMint
  * @category generated
  */
-export type CreatePromoInstructionAccounts = {
-  merchant: web3.PublicKey
-  promo: web3.PublicKey
-  promoMint: web3.PublicKey
+export type CreateRewardMintInstructionAccounts = {
+  rewardData: web3.PublicKey
+  rewardMint: web3.PublicKey
   user: web3.PublicKey
   systemProgram?: web3.PublicKey
   rent?: web3.PublicKey
@@ -62,42 +64,37 @@ export type CreatePromoInstructionAccounts = {
   tokenMetadataProgram: web3.PublicKey
 }
 
-export const createPromoInstructionDiscriminator = [
-  135, 231, 68, 194, 63, 31, 192, 82,
+export const createRewardMintInstructionDiscriminator = [
+  149, 144, 95, 196, 171, 77, 31, 66,
 ]
 
 /**
- * Creates a _CreatePromo_ instruction.
+ * Creates a _CreateRewardMint_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category CreatePromo
+ * @category CreateRewardMint
  * @category generated
  */
-export function createCreatePromoInstruction(
-  accounts: CreatePromoInstructionAccounts,
-  args: CreatePromoInstructionArgs,
-  programId = new web3.PublicKey('FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU')
+export function createCreateRewardMintInstruction(
+  accounts: CreateRewardMintInstructionAccounts,
+  args: CreateRewardMintInstructionArgs,
+  programId = new web3.PublicKey('5VkwrszCsyMcLexmbSpaWJLFKxF2zCAFRZ2uovUAkb46')
 ) {
-  const [data] = createPromoStruct.serialize({
-    instructionDiscriminator: createPromoInstructionDiscriminator,
+  const [data] = createRewardMintStruct.serialize({
+    instructionDiscriminator: createRewardMintInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.merchant,
+      pubkey: accounts.rewardData,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.promo,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.promoMint,
+      pubkey: accounts.rewardMint,
       isWritable: true,
       isSigner: false,
     },

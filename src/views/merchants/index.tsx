@@ -5,6 +5,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 
 import { useWorkspace } from "contexts/Workspace"
 import styles from "../../styles/custom.module.css"
+import { TokenImage } from "../../components/TokenImage"
 
 export const MerchantsView: FC = ({}) => {
     const [merchant, setMerchant] = useState(null)
@@ -18,7 +19,7 @@ export const MerchantsView: FC = ({}) => {
             async function merchantInfo() {
                 try {
                     const merchants =
-                        await workspace.program.account.merchant.all()
+                        await workspace.program.account.tokenData.all()
                     console.log(merchants)
                     setMerchant(merchants)
                 } catch (error: unknown) {}
@@ -41,12 +42,12 @@ export const MerchantsView: FC = ({}) => {
                                 return (
                                     <div>
                                         <div>
-                                            <img src={data.account.image} />
-                                            <ul>Name: {data.account.name}</ul>
-                                            <ul>
-                                                Count:{" "}
-                                                {data.account.promoCount.toNumber()}
-                                            </ul>
+                                            <TokenImage
+                                                key={key}
+                                                account={data}
+                                            />
+                                        </div>
+                                        <div>
                                             <button className="px-2 m-1 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-200 hover:to-yellow-500 ...">
                                                 <Link
                                                     href={

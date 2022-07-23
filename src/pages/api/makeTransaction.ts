@@ -10,24 +10,20 @@ import {
     createAssociatedTokenAccountInstruction,
     TOKEN_PROGRAM_ID,
     ASSOCIATED_TOKEN_PROGRAM_ID,
-    createBurnInstruction,
-    burn,
 } from "@solana/spl-token"
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
 import {
     clusterApiUrl,
     Connection,
-    Keypair,
     PublicKey,
     Transaction,
 } from "@solana/web3.js"
 import { NextApiRequest, NextApiResponse } from "next"
 import { usdcAddress } from "../../lib/addresses"
-
-import { createMintNftInstruction } from "../../../programs/instructions/mintNft"
-import idl from "../../../programs/coupons/token_rewards_coupons.json"
-
 import BN from "bn.js"
+
+import { createRedeemInstruction } from "../../../programs/instructions/redeem"
+import idl from "../../../programs/solana_summer.json"
 
 export type MakeTransactionInputData = {
     account: string
@@ -49,8 +45,8 @@ type ErrorOutput = {
 
 function get(res: NextApiResponse<MakeTransactionGetResponse>) {
     res.status(200).json({
-        label: "Promo",
-        icon: "https://seeklogo.com/images/S/solana-sol-logo-12828AD23D-seeklogo.com.png",
+        label: "Cookies Inc",
+        icon: "https://freesvg.org/img/1370962427.png",
     })
 }
 
@@ -58,7 +54,10 @@ async function post(
     req: NextApiRequest,
     res: NextApiResponse<MakeTransactionOutputData | ErrorOutput>
 ) {
+    // const workspace = useWorkspace()
     try {
+        const { checkout } = req.query
+
         // We pass the reference to use in the query
         const { reference } = req.query
         if (!reference) {
@@ -66,7 +65,6 @@ async function post(
             res.status(400).json({ error: "No reference provided" })
             return
         }
-        console.log(reference)
 
         // We pass the buyer's public key in JSON body
         const { account } = req.body as MakeTransactionInputData
@@ -83,41 +81,19 @@ async function post(
             return
         }
 
-        const { index } = req.query
-        if (!index) {
-            console.log("Returning 400: no index")
-            res.status(400).json({ error: "No index provided" })
-            return
-        }
-
-        const count = index as string
         const publicKey = new PublicKey(wallet)
 
         const buyerPublicKey = new PublicKey(account)
 
         const network = WalletAdapterNetwork.Devnet
         const endpoint = clusterApiUrl(network)
-        const connection = new Connection(endpoint)
+        // const connection = new Connection(endpoint)
+        const connection = new Connection("https://devnet.genesysgo.net/")
 
         const programId = new PublicKey(idl.metadata.address)
 
-        // merchant account PDA
-        const [merchant, merchantBump] = await PublicKey.findProgramAddress(
-            [Buffer.from("MERCHANT"), publicKey.toBuffer()],
-            programId
-        )
-
-        // promo account PDA
-        const [promo, promoBump] = await PublicKey.findProgramAddress(
-            [merchant.toBuffer(), new BN(count).toArrayLike(Buffer, "be", 8)],
-            programId
-        )
-
-        // promo mint PDA
-        const [promoMint, promoMintBump] = await PublicKey.findProgramAddress(
-            [Buffer.from("MINT"), promo.toBuffer()],
-            programId
-        )
+        // Get details about the USDC token
+        const usdcMint = await getMint(connection, usdcAddress)
 
         // Get a recent blockhash to include in the transaction
         const { blockhash } = await connection.getLatestBlockhash("finalized")
@@ -127,32 +103,61 @@ async function post(
             feePayer: buyerPublicKey,
         })
 
-        // get ATA address for user scanning QR code
-        const customerNft = await getAssociatedTokenAddress(
-            promoMint,
+        const [rewardDataPda, rewardDataBump] =
+            await PublicKey.findProgramAddress(
+                [Buffer.from("RewardData"), publicKey.toBuffer()],
+                programId
+            )
+
+        const [rewardMintPda, rewardMintBump] =
+            await PublicKey.findProgramAddress(
+                [Buffer.from("Mint"), rewardDataPda.toBuffer()],
+                programId
+            )
+
+        const rewardTokenAccount = await getAssociatedTokenAddress(
+            rewardMintPda,
             buyerPublicKey
         )
 
-        // instruction to fetch ATA
+        const usdcTokenAccount = await getAssociatedTokenAddress(
+            usdcMint.address,
+            buyerPublicKey
+        )
+
+        const userUsdcToken = await getAssociatedTokenAddress(
+            usdcMint.address,
+            publicKey
+        )
+
         const createAccountInstruction =
             createAssociatedTokenAccountInstruction(
                 buyerPublicKey,
-                customerNft,
+                rewardTokenAccount,
                 buyerPublicKey,
-                promoMint,
+                rewardMintPda,
                 TOKEN_PROGRAM_ID,
                 ASSOCIATED_TOKEN_PROGRAM_ID
             )
 
-        // check if ATA exists, if not add instruction to create one
+        let checkoutAmount = +checkout * 10 ** usdcMint.decimals
+        let rewardTokenAmount = 0
+
         let buyer: Account
         try {
             buyer = await getAccount(
                 connection,
-                customerNft,
+                rewardTokenAccount,
                 "confirmed",
                 TOKEN_PROGRAM_ID
             )
+            if (checkoutAmount - Number(buyer.amount) > 0) {
+                checkoutAmount -= Number(buyer.amount)
+                rewardTokenAmount = Number(buyer.amount)
+            } else {
+                rewardTokenAmount = checkoutAmount
+                checkoutAmount = 0
+            }
         } catch (error: unknown) {
             if (
                 error instanceof TokenAccountNotFoundError ||
@@ -166,13 +171,22 @@ async function post(
             }
         }
 
-        // instruction to mint promo token
-        const transferInstruction = createMintNftInstruction({
-            promo: promo,
-            promoMint: promoMint,
-            customerNft: customerNft,
-            user: buyerPublicKey,
-        })
+        const transferInstruction = createRedeemInstruction(
+            {
+                rewardData: rewardDataPda,
+                rewardMint: rewardMintPda,
+                usdcMint: usdcAddress,
+                customerRewardToken: rewardTokenAccount,
+                customerUsdcToken: usdcTokenAccount,
+                userUsdcToken: userUsdcToken,
+                user: publicKey,
+                customer: buyerPublicKey,
+            },
+            {
+                usdcToken: +checkoutAmount,
+                rewardToken: +rewardTokenAmount,
+            }
+        )
 
         // Add the reference to the instruction as a key
         // This will mean this transaction is returned when we query for the reference
@@ -184,7 +198,6 @@ async function post(
 
         // Add both instructions to the transaction
         transaction.add(transferInstruction)
-        // transaction.add(burnInstruction);
 
         // Serialize the transaction and convert to base64 to return it
         const serializedTransaction = transaction.serialize({

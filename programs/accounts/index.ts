@@ -1,7 +1,5 @@
-export * from './Merchant'
-export * from './Promo'
+export * from './TokenData'
 
-import { Merchant } from './Merchant'
-import { Promo } from './Promo'
+import { TokenData } from './TokenData'
 
-export const accountProviders = { Merchant, Promo }
+export const accountProviders = { TokenData }

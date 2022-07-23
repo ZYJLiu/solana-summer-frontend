@@ -1,3 +1,2 @@
-export * from './createMerchant'
-export * from './createPromo'
-export * from './mintNft'
+export * from './createRewardMint'
+export * from './redeem'

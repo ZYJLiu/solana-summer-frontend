@@ -1,5 +1,11 @@
 import { FC, useState, Fragment, useEffect, useRef, useCallback } from "react"
-import { Transaction, PublicKey } from "@solana/web3.js"
+import {
+    Transaction,
+    PublicKey,
+    SYSVAR_RENT_PUBKEY,
+    SystemProgram,
+    TransactionInstruction,
+} from "@solana/web3.js"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import {
     Metaplex,
@@ -9,6 +15,12 @@ import {
     useMetaplexFileFromBrowser,
     findMetadataPda,
 } from "@metaplex-foundation/js"
+import {
+    TOKEN_PROGRAM_ID,
+    getOrCreateAssociatedTokenAccount,
+    getAssociatedTokenAddress,
+    createAssociatedTokenAccountInstruction,
+} from "@solana/spl-token"
 
 import { createCreatePromoInstruction } from "../../programs/instructions/createPromo"
 import { Merchant } from "../../programs/accounts/Merchant"
@@ -17,7 +29,9 @@ import idl from "../../programs/coupons/token_rewards_coupons.json"
 import { notify } from "../utils/notifications"
 import BN from "bn.js"
 
-export const CreatePromo: FC = () => {
+import { useWorkspace } from "contexts/Workspace"
+
+export const CreateRewardToken: FC = () => {
     const wallet = useWallet()
     const { publicKey, sendTransaction } = useWallet()
     const { connection } = useConnection()
@@ -32,7 +46,11 @@ export const CreatePromo: FC = () => {
 
     const urlMounted = useRef(false)
 
+    const workspace = useWorkspace()
+    const program = workspace.program
+
     const programId = new PublicKey(idl.metadata.address)
+
     const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
         "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
     )
@@ -81,62 +99,90 @@ export const CreatePromo: FC = () => {
                 return
             }
 
-            // merchant account PDA
-            const [merchant, merchantBump] = await PublicKey.findProgramAddress(
-                [Buffer.from("MERCHANT"), publicKey.toBuffer()],
-                programId
-            )
-
-            // get merchant account data
-            const merchantInfo = await Merchant.fromAccountAddress(
-                connection,
-                merchant
-            )
-
-            // promo account PDA
-            const [promo, promoBump] = await PublicKey.findProgramAddress(
-                [
-                    merchant.toBuffer(),
-                    new BN(merchantInfo.promoCount).toArrayLike(
-                        Buffer,
-                        "be",
-                        8
-                    ),
-                ],
-                programId
-            )
-
-            // promo mint PDA
-            const [promoMint, promoMintBump] =
+            // Add your test here.
+            const [rewardDataPda, rewardDataBump] =
                 await PublicKey.findProgramAddress(
-                    [Buffer.from("MINT"), promo.toBuffer()],
-                    programId
+                    [Buffer.from("RewardData"), publicKey.toBuffer()],
+                    program.programId
                 )
 
-            // get mint metedata account PDA
-            const metadataPDA = await findMetadataPda(promoMint)
+            const [rewardMintPda, rewardMintBump] =
+                await PublicKey.findProgramAddress(
+                    [Buffer.from("Mint"), rewardDataPda.toBuffer()],
+                    program.programId
+                )
+
+            const metadataPDA = await findMetadataPda(rewardMintPda)
 
             // build create promotransaction
-            const createPromo = new Transaction().add(
-                createCreatePromoInstruction(
-                    {
-                        merchant: merchant,
-                        promo: promo,
-                        promoMint: promoMint,
-                        user: publicKey,
-                        metadata: metadataPDA,
-                        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-                    },
-                    {
-                        uri: form.metadata.toString(),
-                        name: form.tokenName.toString(),
-                        symbol: form.symbol.toString(),
-                    }
+            const ix: TransactionInstruction = await program.methods
+                .createRewardMint(
+                    new BN(100),
+                    new BN(50),
+                    "https://arweave.net/OwXDf7SM6nCVY2cvQ4svNjtV7WBTz3plbI4obN9JNkk",
+                    "name",
+                    "SYMBOL"
                 )
+                .accounts({
+                    rewardData: rewardDataPda,
+                    rewardMint: rewardMintPda,
+                    user: publicKey,
+                    systemProgram: SystemProgram.programId,
+                    rent: SYSVAR_RENT_PUBKEY,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    metadata: metadataPDA,
+                    tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+                })
+                .instruction()
+
+            // const transaction = new Transaction().add(ix)
+            // console.log(ix)
+
+            const usdcMint = new PublicKey(
+                "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
             )
 
+            const rewardTokenAccount = await getAssociatedTokenAddress(
+                rewardMintPda,
+                publicKey
+            )
+
+            const rewardAccount = createAssociatedTokenAccountInstruction(
+                publicKey,
+                rewardTokenAccount,
+                publicKey,
+                rewardMintPda
+            )
+
+            const usdcTokenAccount = await getAssociatedTokenAddress(
+                usdcMint,
+                publicKey
+            )
+
+            const mint = new PublicKey(
+                "66PbYAH79LJiheMSb48zBxxGXMsLnVBVS5dJuzGHuULz"
+            )
+
+            const ix2: TransactionInstruction = await program.methods
+                .redeem(new BN(1000), new BN(0))
+                .accounts({
+                    rewardData: rewardDataPda,
+                    rewardMint: mint,
+                    usdcMint: usdcMint,
+                    customerRewardToken: rewardTokenAccount,
+                    customerUsdcToken: usdcTokenAccount,
+                    userUsdcToken: usdcTokenAccount,
+                    user: publicKey,
+                    customer: publicKey,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                })
+                .instruction()
+
+            const transaction = new Transaction().add(ix2)
+            // console.log(ix)
+
             const transactionSignature = await sendTransaction(
-                createPromo,
+                transaction,
                 connection
             )
 

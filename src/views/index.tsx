@@ -1,3 +1,2 @@
-export { HomeView } from "./home/index";
-export { DisplayView } from "./display";
-export { MerchantsView } from "./merchants";
+export { HomeView } from "./home/index"
+export { MerchantsView } from "./merchants"

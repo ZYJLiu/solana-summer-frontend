@@ -17,15 +17,14 @@ import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js"
 import PageHeading from "./PageHeading"
 // import BackLink from "./BackLink";
 import { FC, useCallback, useState } from "react"
+import { useWorkspace } from "contexts/Workspace"
 
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
-import { useConnection, useWallet } from "@solana/wallet-adapter-react"
-
-import BigNumber from "bignumber.js"
-
-import { usdcAddress } from "../lib/addresses"
+import { useWallet } from "@solana/wallet-adapter-react"
 
 import { useRouter } from "next/router"
+
+import Confirmed from "../../src/components/Confirmed"
 
 const MODAL_STYLES = {
     position: "fixed",
@@ -33,7 +32,7 @@ const MODAL_STYLES = {
     left: "50%",
     transform: "translate(-50%, -50%)",
     backgroundColor: "#FFF",
-    padding: "20px",
+    padding: "10px",
     zIndex: 1000,
 }
 
@@ -48,29 +47,32 @@ const OVERLAY_STYLES = {
 }
 
 // modal to display attributes
-export default function Modal({ open, data, onClose, wallet }) {
+export default function Modal({ open, data, onClose, amount }) {
     if (!open) return null
 
     const router = useRouter()
+    const workspace = useWorkspace()
 
     // Get a connection to Solana devnet
     const network = WalletAdapterNetwork.Devnet
     const endpoint = clusterApiUrl(network)
-    const connection = new Connection(endpoint)
+    const connection = workspace.connection
+
+    const [reference, setReference] = useState(Keypair.generate().publicKey)
+
     const { publicKey } = useWallet()
+
+    const [confirmed, setConfirmed] = useState(false)
 
     //QR code
     const searchParams = new URLSearchParams()
 
-    if (wallet) {
-        searchParams.append("wallet", wallet.toString())
-    } else {
-        searchParams.append("wallet", publicKey.toString())
-    }
-
-    const reference = useMemo(() => Keypair.generate().publicKey, [])
+    // const reference = useMemo(() => Keypair.generate().publicKey, [])
     searchParams.append("reference", reference.toString())
-    searchParams.append("index", data.toString())
+    searchParams.append("checkout", amount.toString())
+    searchParams.append("wallet", data.account.user.toString())
+
+    console.log("data", data.account.user)
 
     const [size, setSize] = useState(() =>
         typeof window === "undefined"
@@ -92,7 +94,7 @@ export default function Modal({ open, data, onClose, wallet }) {
         const { location } = window
         const apiUrl = `${location.protocol}//${
             location.host
-        }/api/makeTransactionNft?${searchParams.toString()}`
+        }/api/makeTransaction?${searchParams.toString()}`
         const urlParams: TransactionRequestURLFields = {
             link: new URL(apiUrl), // testing placeholder
             label: "Test",
@@ -101,9 +103,11 @@ export default function Modal({ open, data, onClose, wallet }) {
         const solanaUrl = encodeURL(urlParams)
         const qr = createQR(solanaUrl, size, "white")
 
-        qrRef.current.innerHTML = ""
-        qr.append(qrRef.current)
-    })
+        if (qrRef.current) {
+            qrRef.current.innerHTML = ""
+            qr.append(qrRef.current)
+        }
+    }, [data])
 
     // Check every 0.5s if the transaction is completed
     useEffect(() => {
@@ -117,8 +121,8 @@ export default function Modal({ open, data, onClose, wallet }) {
                         finality: "confirmed",
                     }
                 )
-
-                router.push("/confirmedNft")
+                setConfirmed(true)
+                // router.push("/confirmedNft")
                 // console.log("confirmed");
             } catch (e) {
                 if (e instanceof FindReferenceError) {
@@ -132,20 +136,31 @@ export default function Modal({ open, data, onClose, wallet }) {
                 }
                 console.error("Unknown error", e)
             }
-        }, 500)
+        }, 1000)
         return () => {
             clearInterval(interval)
         }
-    }, [])
+    }, [reference.toString()])
 
     return (
         <div>
             <div style={OVERLAY_STYLES} />
             <div style={MODAL_STYLES}>
-                <div ref={qrRef} />
-                <div className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ...">
-                    <button onClick={onClose}>Close</button>
-                </div>
+                {confirmed ? (
+                    <div style={{ width: size }}>
+                        <Confirmed />
+                    </div>
+                ) : (
+                    <div>
+                        <div ref={qrRef} />
+                    </div>
+                )}
+                <button
+                    className=" btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
+                    onClick={onClose}
+                >
+                    Close
+                </button>
             </div>
         </div>
     )
