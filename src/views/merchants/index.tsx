@@ -55,7 +55,7 @@ export const MerchantsView: FC = ({}) => {
                                                         data.account.user.toString()
                                                     }
                                                 >
-                                                    See Promos
+                                                    Button
                                                 </Link>
                                             </button>
                                         </div>
