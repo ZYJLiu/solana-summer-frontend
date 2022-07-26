@@ -1,9 +1,9 @@
 import { createContext, useContext, ReactNode } from "react"
 import {
-    Program,
-    AnchorProvider,
-    Idl,
-    setProvider,
+  Program,
+  AnchorProvider,
+  Idl,
+  setProvider,
 } from "@project-serum/anchor"
 import idl from "./idl.json"
 import { SolanaSummer } from "./solana_summer"
@@ -15,40 +15,41 @@ const WorkspaceContext = createContext({})
 const programId = new PublicKey(idl.metadata.address)
 
 interface WorkSpace {
-    connection?: Connection
-    provider?: AnchorProvider
-    program?: Program<SolanaSummer>
+  connection?: Connection
+  provider?: AnchorProvider
+  program?: Program<SolanaSummer>
 }
 
 const WorkspaceProvider = ({ children }: any) => {
-    const wallet = useWallet()
-    const network = "https://devnet.genesysgo.net/"
-    // const network = "https://api.devnet.solana.com/"
-    const connection = new Connection(network)
-    const provider = new AnchorProvider(connection, wallet, {})
+  const wallet = useWallet()
+  const network = "https://devnet.genesysgo.net/"
+  // const network = "https://api.devnet.solana.com/"
+  const connection = new Connection(network)
+  const provider = new AnchorProvider(connection, wallet, {})
 
-    console.log(programId)
+  console.log(programId)
 
-    setProvider(provider)
-    const program = new Program(
-        idl as Idl,
-        programId
-    ) as unknown as Program<SolanaSummer>
-    const workspace = {
-        connection,
-        provider,
-        program,
-    }
+  setProvider(provider)
+  const program = new Program(
+    idl as Idl,
+    programId
+  ) as unknown as Program<SolanaSummer>
 
-    return (
-        <WorkspaceContext.Provider value={workspace}>
-            {children}
-        </WorkspaceContext.Provider>
-    )
+  const workspace = {
+    connection,
+    provider,
+    program,
+  }
+
+  return (
+    <WorkspaceContext.Provider value={workspace}>
+      {children}
+    </WorkspaceContext.Provider>
+  )
 }
 
 const useWorkspace = (): WorkSpace => {
-    return useContext(WorkspaceContext)
+  return useContext(WorkspaceContext)
 }
 
 export { WorkspaceProvider, useWorkspace }

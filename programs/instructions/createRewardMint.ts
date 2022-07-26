@@ -81,7 +81,7 @@ export const createRewardMintInstructionDiscriminator = [
 export function createCreateRewardMintInstruction(
   accounts: CreateRewardMintInstructionAccounts,
   args: CreateRewardMintInstructionArgs,
-  programId = new web3.PublicKey('5VkwrszCsyMcLexmbSpaWJLFKxF2zCAFRZ2uovUAkb46')
+  programId = new web3.PublicKey('8UBM18TuKwoTLR4cDB1fagGo1P1SpHPPwBRGcXgP1Utr')
 ) {
   const [data] = createRewardMintStruct.serialize({
     instructionDiscriminator: createRewardMintInstructionDiscriminator,
