@@ -4,8 +4,6 @@ import { useEffect, useState } from "react"
 import { PublicKey } from "@solana/web3.js"
 import { GetTokens } from "../components/GetTokens"
 
-import styles from "../../styles/custom.module.css"
-
 export default function Promo() {
   const router = useRouter()
   const { publickey } = router.query
@@ -15,11 +13,11 @@ export default function Promo() {
     publickey || "HexFnfwS4Rp8abu2Y4EnT44NeQf7KFdVdEhYNV2EPvbs"
   ) // placeholder for vercel
 
-  const [accounts, setAccounts] = useState(null)
+  const [account, setAccount] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
-      const accounts = await workspace.program?.account.tokenData.all([
+      const account = await workspace.program?.account.tokenData.all([
         {
           memcmp: {
             offset: 8,
@@ -27,18 +25,20 @@ export default function Promo() {
           },
         },
       ])
-      setAccounts(accounts)
+      setAccount(account)
     }
-    fetchData()
+    try {
+      fetchData()
+    } catch {}
   }, [publickey])
 
   return (
     <div className="md:hero mx-auto p-4">
       <div className="md:hero-content flex flex-col">
-        {accounts && (
+        {account && (
           <div>
-            {Object.keys(accounts).map((key, index) => {
-              const data = accounts[key]
+            {Object.keys(account).map((key, index) => {
+              const data = account[key]
               return <GetTokens key={key} account={data} />
             })}
           </div>
