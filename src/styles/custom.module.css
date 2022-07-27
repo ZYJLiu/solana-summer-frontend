@@ -9,3 +9,11 @@
   border: 1px solid black;
   color: #0f172a;
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: auto;
+  padding: 10px 0;
+}

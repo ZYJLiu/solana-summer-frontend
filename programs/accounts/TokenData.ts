@@ -20,6 +20,9 @@ export type TokenDataArgs = {
   rewardBump: number
   rebateBasisPoints: beet.bignum
   bonusBasisPoints: beet.bignum
+  loyaltyMint: web3.PublicKey
+  loyaltyBump: number
+  discountBasisPoints: beet.bignum
 }
 
 export const tokenDataDiscriminator = [10, 136, 199, 13, 59, 103, 129, 70]
@@ -36,7 +39,10 @@ export class TokenData implements TokenDataArgs {
     readonly rewardMint: web3.PublicKey,
     readonly rewardBump: number,
     readonly rebateBasisPoints: beet.bignum,
-    readonly bonusBasisPoints: beet.bignum
+    readonly bonusBasisPoints: beet.bignum,
+    readonly loyaltyMint: web3.PublicKey,
+    readonly loyaltyBump: number,
+    readonly discountBasisPoints: beet.bignum
   ) {}
 
   /**
@@ -48,7 +54,10 @@ export class TokenData implements TokenDataArgs {
       args.rewardMint,
       args.rewardBump,
       args.rebateBasisPoints,
-      args.bonusBasisPoints
+      args.bonusBasisPoints,
+      args.loyaltyMint,
+      args.loyaltyBump,
+      args.discountBasisPoints
     )
   }
 
@@ -88,7 +97,7 @@ export class TokenData implements TokenDataArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '8UBM18TuKwoTLR4cDB1fagGo1P1SpHPPwBRGcXgP1Utr'
+      'HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, tokenDataBeet)
@@ -176,6 +185,19 @@ export class TokenData implements TokenDataArgs {
         }
         return x
       })(),
+      loyaltyMint: this.loyaltyMint.toBase58(),
+      loyaltyBump: this.loyaltyBump,
+      discountBasisPoints: (() => {
+        const x = <{ toNumber: () => number }>this.discountBasisPoints
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
     }
   }
 }
@@ -197,6 +219,9 @@ export const tokenDataBeet = new beet.BeetStruct<
     ['rewardBump', beet.u8],
     ['rebateBasisPoints', beet.u64],
     ['bonusBasisPoints', beet.u64],
+    ['loyaltyMint', beetSolana.publicKey],
+    ['loyaltyBump', beet.u8],
+    ['discountBasisPoints', beet.u64],
   ],
   TokenData.fromArgs,
   'TokenData'

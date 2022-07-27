@@ -11,51 +11,49 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category CreateRewardMint
+ * @category CreateLoyaltyMint
  * @category generated
  */
-export type CreateRewardMintInstructionArgs = {
-  rebateBasisPoints: beet.bignum
-  bonusBasisPoints: beet.bignum
+export type CreateLoyaltyMintInstructionArgs = {
+  discountBasisPoints: beet.bignum
   uri: string
   name: string
   symbol: string
 }
 /**
  * @category Instructions
- * @category CreateRewardMint
+ * @category CreateLoyaltyMint
  * @category generated
  */
-export const createRewardMintStruct = new beet.FixableBeetArgsStruct<
-  CreateRewardMintInstructionArgs & {
+export const createLoyaltyMintStruct = new beet.FixableBeetArgsStruct<
+  CreateLoyaltyMintInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['rebateBasisPoints', beet.u64],
-    ['bonusBasisPoints', beet.u64],
+    ['discountBasisPoints', beet.u64],
     ['uri', beet.utf8String],
     ['name', beet.utf8String],
     ['symbol', beet.utf8String],
   ],
-  'CreateRewardMintInstructionArgs'
+  'CreateLoyaltyMintInstructionArgs'
 )
 /**
- * Accounts required by the _createRewardMint_ instruction
+ * Accounts required by the _createLoyaltyMint_ instruction
  *
  * @property [_writable_] rewardData
- * @property [_writable_] rewardMint
+ * @property [_writable_] loyaltyMint
  * @property [_writable_, **signer**] user
  * @property [_writable_] metadata
  * @property [] tokenMetadataProgram
  * @category Instructions
- * @category CreateRewardMint
+ * @category CreateLoyaltyMint
  * @category generated
  */
-export type CreateRewardMintInstructionAccounts = {
+export type CreateLoyaltyMintInstructionAccounts = {
   rewardData: web3.PublicKey
-  rewardMint: web3.PublicKey
+  loyaltyMint: web3.PublicKey
   user: web3.PublicKey
   systemProgram?: web3.PublicKey
   rent?: web3.PublicKey
@@ -64,27 +62,27 @@ export type CreateRewardMintInstructionAccounts = {
   tokenMetadataProgram: web3.PublicKey
 }
 
-export const createRewardMintInstructionDiscriminator = [
-  149, 144, 95, 196, 171, 77, 31, 66,
+export const createLoyaltyMintInstructionDiscriminator = [
+  29, 100, 89, 61, 239, 34, 129, 31,
 ]
 
 /**
- * Creates a _CreateRewardMint_ instruction.
+ * Creates a _CreateLoyaltyMint_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category CreateRewardMint
+ * @category CreateLoyaltyMint
  * @category generated
  */
-export function createCreateRewardMintInstruction(
-  accounts: CreateRewardMintInstructionAccounts,
-  args: CreateRewardMintInstructionArgs,
+export function createCreateLoyaltyMintInstruction(
+  accounts: CreateLoyaltyMintInstructionAccounts,
+  args: CreateLoyaltyMintInstructionArgs,
   programId = new web3.PublicKey('HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8')
 ) {
-  const [data] = createRewardMintStruct.serialize({
-    instructionDiscriminator: createRewardMintInstructionDiscriminator,
+  const [data] = createLoyaltyMintStruct.serialize({
+    instructionDiscriminator: createLoyaltyMintInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
@@ -94,7 +92,7 @@ export function createCreateRewardMintInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.rewardMint,
+      pubkey: accounts.loyaltyMint,
       isWritable: true,
       isSigner: false,
     },

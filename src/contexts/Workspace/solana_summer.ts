@@ -70,6 +70,69 @@ export type SolanaSummer = {
       ]
     },
     {
+      name: "createLoyaltyMint"
+      accounts: [
+        {
+          name: "rewardData"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "loyaltyMint"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "user"
+          isMut: true
+          isSigner: true
+        },
+        {
+          name: "systemProgram"
+          isMut: false
+          isSigner: false
+        },
+        {
+          name: "rent"
+          isMut: false
+          isSigner: false
+        },
+        {
+          name: "tokenProgram"
+          isMut: false
+          isSigner: false
+        },
+        {
+          name: "metadata"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "tokenMetadataProgram"
+          isMut: false
+          isSigner: false
+        }
+      ]
+      args: [
+        {
+          name: "discountBasisPoints"
+          type: "u64"
+        },
+        {
+          name: "uri"
+          type: "string"
+        },
+        {
+          name: "name"
+          type: "string"
+        },
+        {
+          name: "symbol"
+          type: "string"
+        }
+      ]
+    },
+    {
       name: "redeem"
       accounts: [
         {
@@ -128,6 +191,42 @@ export type SolanaSummer = {
           type: "u64"
         }
       ]
+    },
+    {
+      name: "mintNft"
+      accounts: [
+        {
+          name: "rewardData"
+          isMut: false
+          isSigner: false
+        },
+        {
+          name: "loyaltyMint"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "tokenProgram"
+          isMut: false
+          isSigner: false
+        },
+        {
+          name: "user"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "customerNft"
+          isMut: true
+          isSigner: false
+        },
+        {
+          name: "customer"
+          isMut: true
+          isSigner: true
+        }
+      ]
+      args: []
     }
   ]
   accounts: [
@@ -154,6 +253,18 @@ export type SolanaSummer = {
           },
           {
             name: "bonusBasisPoints"
+            type: "u64"
+          },
+          {
+            name: "loyaltyMint"
+            type: "publicKey"
+          },
+          {
+            name: "loyaltyBump"
+            type: "u8"
+          },
+          {
+            name: "discountBasisPoints"
             type: "u64"
           }
         ]
@@ -246,6 +357,69 @@ export const IDL: SolanaSummer = {
       ],
     },
     {
+      name: "createLoyaltyMint",
+      accounts: [
+        {
+          name: "rewardData",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "loyaltyMint",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "user",
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rent",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "metadata",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "tokenMetadataProgram",
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: "discountBasisPoints",
+          type: "u64",
+        },
+        {
+          name: "uri",
+          type: "string",
+        },
+        {
+          name: "name",
+          type: "string",
+        },
+        {
+          name: "symbol",
+          type: "string",
+        },
+      ],
+    },
+    {
       name: "redeem",
       accounts: [
         {
@@ -305,6 +479,42 @@ export const IDL: SolanaSummer = {
         },
       ],
     },
+    {
+      name: "mintNft",
+      accounts: [
+        {
+          name: "rewardData",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "loyaltyMint",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "user",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "customerNft",
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: "customer",
+          isMut: true,
+          isSigner: true,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -330,6 +540,18 @@ export const IDL: SolanaSummer = {
           },
           {
             name: "bonusBasisPoints",
+            type: "u64",
+          },
+          {
+            name: "loyaltyMint",
+            type: "publicKey",
+          },
+          {
+            name: "loyaltyBump",
+            type: "u8",
+          },
+          {
+            name: "discountBasisPoints",
             type: "u64",
           },
         ],

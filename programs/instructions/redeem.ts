@@ -79,7 +79,7 @@ export const redeemInstructionDiscriminator = [
 export function createRedeemInstruction(
   accounts: RedeemInstructionAccounts,
   args: RedeemInstructionArgs,
-  programId = new web3.PublicKey('8UBM18TuKwoTLR4cDB1fagGo1P1SpHPPwBRGcXgP1Utr')
+  programId = new web3.PublicKey('HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8')
 ) {
   const [data] = redeemStruct.serialize({
     instructionDiscriminator: redeemInstructionDiscriminator,

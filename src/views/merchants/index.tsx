@@ -17,14 +17,15 @@ export const MerchantsView: FC = ({}) => {
   useEffect(() => {
     if (connection) {
       async function merchantInfo() {
+        const merchants = await workspace.program.account.tokenData.all()
         try {
-          const merchants = await workspace.program.account.tokenData.all()
-          console.log(merchants)
+          console.log("test", merchants)
           setMerchant(merchants)
         } catch (error: unknown) {}
       }
       merchantInfo()
     }
+    console.log("test")
   }, [connection])
 
   return (
@@ -46,11 +47,7 @@ export const MerchantsView: FC = ({}) => {
                     </div>
                     <div>
                       <button className="px-2 m-1 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-200 hover:to-yellow-500 ...">
-                        <Link
-                          href={`merchants/` + data.account.user.toString()}
-                        >
-                          Button
-                        </Link>
+                        <Link href={data.account.user.toString()}>Button</Link>
                       </button>
                     </div>
                   </div>

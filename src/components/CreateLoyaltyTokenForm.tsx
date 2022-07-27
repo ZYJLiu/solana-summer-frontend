@@ -1,11 +1,5 @@
-import { FC, useState, Fragment, useEffect, useRef, useCallback } from "react"
-import {
-  Transaction,
-  PublicKey,
-  SYSVAR_RENT_PUBKEY,
-  SystemProgram,
-  TransactionInstruction,
-} from "@solana/web3.js"
+import { FC, useState, useEffect, useRef, useCallback } from "react"
+import { PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram } from "@solana/web3.js"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import {
   Metaplex,
@@ -15,41 +9,36 @@ import {
   useMetaplexFileFromBrowser,
   findMetadataPda,
 } from "@metaplex-foundation/js"
-import {
-  TOKEN_PROGRAM_ID,
-  getOrCreateAssociatedTokenAccount,
-  getAssociatedTokenAddress,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token"
-
-import { createCreatePromoInstruction } from "../../programs/instructions/createPromo"
-import { Merchant } from "../../programs/accounts/Merchant"
-import idl from "../../programs/coupons/token_rewards_coupons.json"
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token"
 
 import { notify } from "../utils/notifications"
 import BN from "bn.js"
 
 import { useWorkspace } from "contexts/Workspace"
 
-export const CreateRewardToken: FC = () => {
+export const CreateLoyaltyToken: FC = () => {
+  // setup
   const wallet = useWallet()
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
+  const workspace = useWorkspace()
 
+  // bundlr uploads
   const [imageUrl, setImageUrl] = useState(null)
   const [metadataUrl, setMetadataUrl] = useState(null)
 
+  // form variables
   const [tokenName, setTokenName] = useState("")
   const [symbol, setSymbol] = useState("")
   const [description, setDescription] = useState("")
+  const [discount, setDiscount] = useState("")
+
+  // transaction signature
   const [transaction, setTransaction] = useState("")
 
   const urlMounted = useRef(false)
 
-  const workspace = useWorkspace()
   const program = workspace.program
-
-  const programId = new PublicKey(idl.metadata.address)
 
   const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
     "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
@@ -81,12 +70,19 @@ export const CreateRewardToken: FC = () => {
 
   // upload metadata
   const uploadMetadata = async () => {
-    const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+    const data = {
       name: tokenName,
       symbol: symbol,
       description: description,
       image: imageUrl,
-    })
+      attributes: [
+        {
+          trait_type: "Checkout Discount %",
+          value: discount,
+        },
+      ],
+    }
+    const { uri, metadata } = await metaplex.nfts().uploadMetadata(data)
     setMetadataUrl(uri)
     console.log(uri)
   }
@@ -99,33 +95,34 @@ export const CreateRewardToken: FC = () => {
         return
       }
 
-      // Add your test here.
-      const [rewardDataPda, rewardDataBump] =
-        await PublicKey.findProgramAddress(
-          [Buffer.from("RewardData"), publicKey.toBuffer()],
-          program.programId
-        )
+      // get pda to store data
+      const [rewardDataPda] = await PublicKey.findProgramAddress(
+        [Buffer.from("RewardData"), publicKey.toBuffer()],
+        program.programId
+      )
 
-      const [rewardMintPda, rewardMintBump] =
-        await PublicKey.findProgramAddress(
-          [Buffer.from("Mint"), rewardDataPda.toBuffer()],
-          program.programId
-        )
+      // get pda for token mint / mint authority
+      const [rewardMintPda] = await PublicKey.findProgramAddress(
+        [Buffer.from("Loyalty"), rewardDataPda.toBuffer()],
+        program.programId
+      )
 
+      // get metadata pda for token mint
       const metadataPDA = await findMetadataPda(rewardMintPda)
 
-      // build create promotransaction
-      const ix: TransactionInstruction = await program.methods
-        .createRewardMint(
-          new BN(100),
-          new BN(50),
-          "https://arweave.net/OwXDf7SM6nCVY2cvQ4svNjtV7WBTz3plbI4obN9JNkk",
-          "name",
-          "SYMBOL"
+      let basispoints = form.percent * 100
+
+      // build transaction to create token mint
+      const transaction = await program.methods
+        .createLoyaltyMint(
+          new BN(basispoints),
+          form.metadata.toString(),
+          form.tokenName.toString(),
+          form.symbol.toString()
         )
         .accounts({
           rewardData: rewardDataPda,
-          rewardMint: rewardMintPda,
+          loyaltyMint: rewardMintPda,
           user: publicKey,
           systemProgram: SystemProgram.programId,
           rent: SYSVAR_RENT_PUBKEY,
@@ -133,51 +130,7 @@ export const CreateRewardToken: FC = () => {
           metadata: metadataPDA,
           tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
         })
-        .instruction()
-
-      // const transaction = new Transaction().add(ix)
-      // console.log(ix)
-
-      const usdcMint = new PublicKey(
-        "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
-      )
-
-      const rewardTokenAccount = await getAssociatedTokenAddress(
-        rewardMintPda,
-        publicKey
-      )
-
-      const rewardAccount = createAssociatedTokenAccountInstruction(
-        publicKey,
-        rewardTokenAccount,
-        publicKey,
-        rewardMintPda
-      )
-
-      const usdcTokenAccount = await getAssociatedTokenAddress(
-        usdcMint,
-        publicKey
-      )
-
-      const mint = new PublicKey("66PbYAH79LJiheMSb48zBxxGXMsLnVBVS5dJuzGHuULz")
-
-      const ix2: TransactionInstruction = await program.methods
-        .redeem(new BN(1000), new BN(0))
-        .accounts({
-          rewardData: rewardDataPda,
-          rewardMint: mint,
-          usdcMint: usdcMint,
-          customerRewardToken: rewardTokenAccount,
-          customerUsdcToken: usdcTokenAccount,
-          userUsdcToken: usdcTokenAccount,
-          user: publicKey,
-          customer: publicKey,
-          tokenProgram: TOKEN_PROGRAM_ID,
-        })
-        .instruction()
-
-      const transaction = new Transaction().add(ix2)
-      // console.log(ix)
+        .transaction()
 
       const transactionSignature = await sendTransaction(
         transaction,
@@ -189,7 +142,7 @@ export const CreateRewardToken: FC = () => {
 
       notify({
         type: "success",
-        message: `Promo Created`,
+        message: `Reward Token Created`,
       })
 
       setTransaction(url)
@@ -202,8 +155,9 @@ export const CreateRewardToken: FC = () => {
     if (urlMounted.current && metadataUrl != null) {
       createPromo({
         metadata: metadataUrl,
-        symbol: symbol,
+        symbol: "Promo",
         tokenName: tokenName,
+        percent: discount,
       })
     } else {
       urlMounted.current = true
@@ -214,7 +168,6 @@ export const CreateRewardToken: FC = () => {
   useEffect(() => {
     if (wallet && wallet.connected) {
       async function connectProvider() {
-        console.log("Connected Wallet", wallet)
         await wallet.connect()
         const provider = wallet.wallet.adapter
         await provider.connect()
@@ -259,7 +212,7 @@ export const CreateRewardToken: FC = () => {
                       >
                         {!imageUrl ? (
                           <div>
-                            <span>Upload Token Image</span>
+                            <span>Upload Reward Token Image</span>
                             <input
                               id="image-upload"
                               name="image-upload"
@@ -312,7 +265,12 @@ export const CreateRewardToken: FC = () => {
                 placeholder="Description"
                 onChange={(e) => setDescription(e.target.value)}
               />
-
+              <input
+                type="number"
+                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                placeholder="Reward Percentage"
+                onChange={(e) => setDiscount(e.target.value)}
+              />
               <button
                 className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
                 onClick={async () => uploadMetadata()}

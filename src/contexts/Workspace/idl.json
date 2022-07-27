@@ -70,6 +70,69 @@
       ]
     },
     {
+      "name": "createLoyaltyMint",
+      "accounts": [
+        {
+          "name": "rewardData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "loyaltyMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "discountBasisPoints",
+          "type": "u64"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "redeem",
       "accounts": [
         {
@@ -128,6 +191,42 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "mintNft",
+      "accounts": [
+        {
+          "name": "rewardData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "loyaltyMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customerNft",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "customer",
+          "isMut": true,
+          "isSigner": true
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -155,6 +254,18 @@
           {
             "name": "bonusBasisPoints",
             "type": "u64"
+          },
+          {
+            "name": "loyaltyMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "loyaltyBump",
+            "type": "u8"
+          },
+          {
+            "name": "discountBasisPoints",
+            "type": "u64"
           }
         ]
       }
@@ -173,7 +284,7 @@
     }
   ],
   "metadata": {
-    "address": "8UBM18TuKwoTLR4cDB1fagGo1P1SpHPPwBRGcXgP1Utr",
+    "address": "HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8",
     "origin": "anchor",
     "binaryVersion": "0.24.2",
     "libVersion": "0.24.2"
