@@ -23,3 +23,10 @@ a {
 .wallet-adapter-button:not([disabled]):hover {
   background-color: #707070;
 }
+
+img {
+  width: 250px;
+  height: 250px;
+  margin: auto;
+  display: block;
+}

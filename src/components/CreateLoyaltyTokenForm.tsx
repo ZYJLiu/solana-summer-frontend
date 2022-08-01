@@ -16,6 +16,8 @@ import BN from "bn.js"
 
 import { useWorkspace } from "contexts/Workspace"
 
+import Link from "next/link"
+
 export const CreateLoyaltyToken: FC = () => {
   // setup
   const wallet = useWallet()
@@ -71,9 +73,9 @@ export const CreateLoyaltyToken: FC = () => {
   // upload metadata
   const uploadMetadata = async () => {
     const data = {
-      name: tokenName,
-      symbol: symbol,
-      description: description,
+      name: "Loyalty",
+      symbol: "Loyalty",
+      description: "Receive % Discount on Next Purchase",
       image: imageUrl,
       attributes: [
         {
@@ -155,8 +157,8 @@ export const CreateLoyaltyToken: FC = () => {
     if (urlMounted.current && metadataUrl != null) {
       createPromo({
         metadata: metadataUrl,
-        symbol: "Promo",
-        tokenName: tokenName,
+        symbol: "Loyalty",
+        tokenName: "Loyalty NFT",
         percent: discount,
       })
     } else {
@@ -179,12 +181,6 @@ export const CreateLoyaltyToken: FC = () => {
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-        <div className="py-4 sm:py-5 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-6">
-          <div className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-1">
-            <div className="px-4 py-5 bg-white space-y-6 sm:p-6"></div>
-          </div>
-        </div>
-
         <div className="py-4 sm:py-5 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-6">
           <div className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-1">
             {!transaction ? (
@@ -212,7 +208,7 @@ export const CreateLoyaltyToken: FC = () => {
                       >
                         {!imageUrl ? (
                           <div>
-                            <span>Upload Reward Token Image</span>
+                            <span>Upload Reward NFT Image</span>
                             <input
                               id="image-upload"
                               name="image-upload"
@@ -231,53 +227,58 @@ export const CreateLoyaltyToken: FC = () => {
                     </div>
                   </div>
                 </div>
+                <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
+                  <div className="my-6">
+                    {/* <input
+                      type="text"
+                      className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                      placeholder="Token Name"
+                      onChange={(e) => setTokenName(e.target.value)}
+                    /> */}
+                    {/* <input
+                      type="text"
+                      className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                      placeholder="Symbol"
+                      onChange={(e) => setSymbol(e.target.value)}
+                    /> */}
+                    {/* <input
+                      type="text"
+                      className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                      placeholder="Description"
+                      onChange={(e) => setDescription(e.target.value)}
+                    /> */}
+                    <div className="text-lg font-medium leading-6 text-gray-900"></div>
+                    <input
+                      type="number"
+                      className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                      placeholder="Discount % of Checkout"
+                      onChange={(e) => setDiscount(e.target.value)}
+                    />
+                    <button
+                      className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
+                      onClick={async () => uploadMetadata()}
+                    >
+                      <span>Create Loyalty Nft</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="px-1 py-1 bg-white space-y-1 sm:p-1">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  Promo Created
+                  Loyalty NFT Created
                 </h3>
                 <a href={transaction} target="_blank" rel="noreferrer">
                   Click Here to View Transaction
                 </a>
                 <img src={imageUrl} />
+                <button className="px-2 m-1 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-200 hover:to-yellow-500 ...">
+                  <Link href={publicKey.toString()}>
+                    Go To Your Checkout Page!
+                  </Link>
+                </button>
               </div>
             )}
-          </div>
-
-          <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-            <div className="my-6">
-              <input
-                type="text"
-                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                placeholder="Token Name"
-                onChange={(e) => setTokenName(e.target.value)}
-              />
-              <input
-                type="text"
-                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                placeholder="Symbol"
-                onChange={(e) => setSymbol(e.target.value)}
-              />
-              <input
-                type="text"
-                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                placeholder="Description"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <input
-                type="number"
-                className="form-control block mb-2 w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                placeholder="Reward Percentage"
-                onChange={(e) => setDiscount(e.target.value)}
-              />
-              <button
-                className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
-                onClick={async () => uploadMetadata()}
-              >
-                <span>Create Token</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>

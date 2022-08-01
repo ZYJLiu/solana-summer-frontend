@@ -18,7 +18,7 @@
     "@metaplex-foundation/mpl-token-metadata": "^2.1.2",
     "@project-serum/anchor": "^0.25.0",
     "@solana/buffer-layout": "^4.0.0",
-    "@solana/pay": "^0.2.0",
+    "@solana/pay": "^0.2.1",
     "@solana/spl-token": "^0.2.0",
     "@solana/wallet-adapter-base": "^0.9.3",
     "@solana/wallet-adapter-react": "^0.15.3",
@@ -40,7 +40,8 @@
     "react-circular-progressbar": "^2.0.4",
     "react-dom": "17.0.2",
     "stream-browserify": "^3.0.0",
-    "zustand": "^3.6.9"
+    "zustand": "^3.6.9",
+    "color-interpolate": "^1.0.5"
   },
   "devDependencies": {
     "@types/node": "17.0.10",
