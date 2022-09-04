@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as splToken from "@solana/spl-token"
+import * as beet from "@metaplex-foundation/beet"
+import * as web3 from "@solana/web3.js"
 
 /**
  * @category Instructions
@@ -32,14 +32,14 @@ export const createRewardMintStruct = new beet.FixableBeetArgsStruct<
   }
 >(
   [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['rebateBasisPoints', beet.u64],
-    ['bonusBasisPoints', beet.u64],
-    ['uri', beet.utf8String],
-    ['name', beet.utf8String],
-    ['symbol', beet.utf8String],
+    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["rebateBasisPoints", beet.u64],
+    ["bonusBasisPoints", beet.u64],
+    ["uri", beet.utf8String],
+    ["name", beet.utf8String],
+    ["symbol", beet.utf8String],
   ],
-  'CreateRewardMintInstructionArgs'
+  "CreateRewardMintInstructionArgs"
 )
 /**
  * Accounts required by the _createRewardMint_ instruction
@@ -81,7 +81,7 @@ export const createRewardMintInstructionDiscriminator = [
 export function createCreateRewardMintInstruction(
   accounts: CreateRewardMintInstructionAccounts,
   args: CreateRewardMintInstructionArgs,
-  programId = new web3.PublicKey('HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8')
+  programId = new web3.PublicKey("AbnVVDtVsP6rFUKg5QJjsJZAK9sLfqmjRC5xTVfq4RmD")
 ) {
   const [data] = createRewardMintStruct.serialize({
     instructionDiscriminator: createRewardMintInstructionDiscriminator,

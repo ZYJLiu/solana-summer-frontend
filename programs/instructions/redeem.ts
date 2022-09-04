@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as splToken from "@solana/spl-token"
+import * as beet from "@metaplex-foundation/beet"
+import * as web3 from "@solana/web3.js"
 
 /**
  * @category Instructions
@@ -29,11 +29,11 @@ export const redeemStruct = new beet.BeetArgsStruct<
   }
 >(
   [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['usdcToken', beet.u64],
-    ['rewardToken', beet.u64],
+    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["usdcToken", beet.u64],
+    ["rewardToken", beet.u64],
   ],
-  'RedeemInstructionArgs'
+  "RedeemInstructionArgs"
 )
 /**
  * Accounts required by the _redeem_ instruction
@@ -79,7 +79,7 @@ export const redeemInstructionDiscriminator = [
 export function createRedeemInstruction(
   accounts: RedeemInstructionAccounts,
   args: RedeemInstructionArgs,
-  programId = new web3.PublicKey('HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8')
+  programId = new web3.PublicKey("AbnVVDtVsP6rFUKg5QJjsJZAK9sLfqmjRC5xTVfq4RmD")
 ) {
   const [data] = redeemStruct.serialize({
     instructionDiscriminator: redeemInstructionDiscriminator,

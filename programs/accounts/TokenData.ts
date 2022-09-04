@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
-import * as beet from '@metaplex-foundation/beet'
-import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as web3 from "@solana/web3.js"
+import * as beet from "@metaplex-foundation/beet"
+import * as beetSolana from "@metaplex-foundation/beet-solana"
 
 /**
  * Arguments used to create {@link TokenData}
@@ -97,7 +97,7 @@ export class TokenData implements TokenDataArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'HKW2NmTt3uGw4nD3Q6mjDt2bcRok433ZgxCyA2vaJGz8'
+      "AbnVVDtVsP6rFUKg5QJjsJZAK9sLfqmjRC5xTVfq4RmD"
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, tokenDataBeet)
@@ -165,7 +165,7 @@ export class TokenData implements TokenDataArgs {
       rewardBump: this.rewardBump,
       rebateBasisPoints: (() => {
         const x = <{ toNumber: () => number }>this.rebateBasisPoints
-        if (typeof x.toNumber === 'function') {
+        if (typeof x.toNumber === "function") {
           try {
             return x.toNumber()
           } catch (_) {
@@ -176,7 +176,7 @@ export class TokenData implements TokenDataArgs {
       })(),
       bonusBasisPoints: (() => {
         const x = <{ toNumber: () => number }>this.bonusBasisPoints
-        if (typeof x.toNumber === 'function') {
+        if (typeof x.toNumber === "function") {
           try {
             return x.toNumber()
           } catch (_) {
@@ -189,7 +189,7 @@ export class TokenData implements TokenDataArgs {
       loyaltyBump: this.loyaltyBump,
       discountBasisPoints: (() => {
         const x = <{ toNumber: () => number }>this.discountBasisPoints
-        if (typeof x.toNumber === 'function') {
+        if (typeof x.toNumber === "function") {
           try {
             return x.toNumber()
           } catch (_) {
@@ -213,16 +213,16 @@ export const tokenDataBeet = new beet.BeetStruct<
   }
 >(
   [
-    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['user', beetSolana.publicKey],
-    ['rewardMint', beetSolana.publicKey],
-    ['rewardBump', beet.u8],
-    ['rebateBasisPoints', beet.u64],
-    ['bonusBasisPoints', beet.u64],
-    ['loyaltyMint', beetSolana.publicKey],
-    ['loyaltyBump', beet.u8],
-    ['discountBasisPoints', beet.u64],
+    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["user", beetSolana.publicKey],
+    ["rewardMint", beetSolana.publicKey],
+    ["rewardBump", beet.u8],
+    ["rebateBasisPoints", beet.u64],
+    ["bonusBasisPoints", beet.u64],
+    ["loyaltyMint", beetSolana.publicKey],
+    ["loyaltyBump", beet.u8],
+    ["discountBasisPoints", beet.u64],
   ],
   TokenData.fromArgs,
-  'TokenData'
+  "TokenData"
 )
